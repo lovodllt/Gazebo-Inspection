@@ -1,0 +1,18 @@
+# move_base导航核心参数
+move_base:
+  # 全局规划器（默认用Navfn，适合巡检场景）
+  base_global_planner: "navfn/NavfnROS"
+  # 局部规划器（默认用轨迹规划器，避障灵敏）
+  base_local_planner: "base_local_planner/TrajectoryPlannerROS"
+
+  # 导航频率配置（适配Gazebo仿真速度）
+  controller_frequency: 10.0     # 控制指令发布频率（10Hz）
+  planner_frequency: 1.0         # 全局路径规划频率（1Hz，不浪费资源）
+
+  # 局部规划器速度限制（适配巡检机器人，避免过快）
+  TrajectoryPlannerROS:
+    max_vel_x: 0.01               # 最大线速度（0.3m/s）
+    min_vel_x: 0.01              # 最小线速度（0.05m/s，避免停滞）
+    max_rotational_vel: 0.5      # 最大角速度（0.5rad/s，转向平稳）
+    min_in_place_rotational_vel: 0.2  # 原地转向最小速度
+    escape_vel: -0.1             # 后退逃逸速度（遇到障碍时后退）

@@ -1,0 +1,22 @@
+# AMCL定位参数配置（适配你的巡检机器人）
+amcl:
+  # 坐标系配置（与你的Gazebo仿真一致）
+  odom_frame_id: "odom"          # 匹配你的/odom话题
+  base_frame_id: "base_link"     # 机器人基坐标系（与URDF一致）
+  global_frame_id: "map"         # 全局地图坐标系（匹配/map话题）
+
+  # 定位更新触发条件（移动/转向时更新）
+  update_min_d: 0.1              # 移动超过0.1m更新定位（灵敏）
+  update_min_a: 0.2              # 转向超过0.2rad（~11°）更新定位
+
+  # 粒子滤波参数（平衡精度与性能）
+  min_particles: 800             # 最小粒子数
+  max_particles: 1500            # 最大粒子数（复杂场景定位更稳）
+  initial_pose_x: 0.0            # 机器人初始X坐标（与Gazebo spawn位置一致）
+  initial_pose_y: 0.0            # 初始Y坐标
+  initial_pose_a: 0.0            # 初始朝向（0rad正前方）
+
+  # 激光匹配参数（适配你的/scan话题）
+  laser_max_range: 5.0           # 激光最大有效距离（与你的激光雷达一致）
+  laser_min_range: 0.1           # 激光最小有效距离
+  laser_max_beams: 30            # 每次匹配用的激光束数量（平衡速度）

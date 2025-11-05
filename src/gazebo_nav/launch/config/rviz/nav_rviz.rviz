@@ -1,0 +1,42 @@
+Panels:
+  - Class: rviz/Displays
+    Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /Global Options1
+        - /Map1
+        - /RobotModel1
+        - /PoseArray1
+        - /Path1
+Visualization Manager:
+  Displays:
+    # 1. 加载地图（关键，对应你的/map话题）
+    - Class: rviz/Map
+      Enabled: true
+      Name: Map
+      Topic: /map
+    # 2. 显示机器人模型
+    - Class: rviz/RobotModel
+      Enabled: true
+      Name: RobotModel
+      Robot Description: robot_description
+    # 3. 显示AMCL定位粒子（确认机器人位置）
+    - Class: rviz/PoseArray
+      Enabled: true
+      Name: PoseArray
+      Topic: /particlecloud
+    # 4. 显示导航路径
+    - Class: rviz/Path
+      Enabled: true
+      Name: Path
+      Topic: /move_base/NavfnROS/plan
+  # 全局设置（固定坐标系为map，必对）
+  Global Options:
+    Fixed Frame: map
+  # 导航必需工具（初始化位置+设置目标点）
+  Tools:
+    - Class: rviz/SetInitialPose
+    - Class: rviz/SetGoal
+Window Geometry:
+  Height: 600
+  Width: 800

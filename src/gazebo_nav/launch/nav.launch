@@ -1,0 +1,50 @@
+<launch>
+    <!-- 1. 加载已保存的静态地图（跨包引用 gazebo_map 中的 map1.yaml） -->
+    <node pkg="map_server" type="map_server" name="map_server" output="screen" args="$(find gazebo_map)/map/map1.yaml">
+        <param name="frame_id" value="map"/>  <!-- 地图坐标系，与配置文件一致 -->
+    </node>
+
+    <!-- 2. 启动 AMCL 定位节点（加载 launch/config/amcl/ 下的配置） -->
+    <node pkg="amcl" type="amcl" name="amcl" output="screen">
+        <!-- 加载 AMCL 定位参数（对应 launch/config/amcl/amcl_params.yaml） -->
+        <rosparam file="$(find gazebo_nav)/launch/config/amcl/amcl_params.yaml" command="load"/>
+        <!-- 若 $(find) 失效，直接用绝对路径（替换为你的实际路径）： -->
+        <!-- <rosparam file="/home/xuncheng/Gazebo-Inspection/src/gazebo_nav/launch/config/amcl/amcl_params.yaml" command="load"/> -->
+    </node>
+
+    <!-- 3. 启动 move_base 导航核心（加载 launch/config/move_base/ 下的配置） -->
+    <node pkg="move_base" type="move_base" name="move_base" output="screen" clear_params="true">
+        <!-- 加载 move_base 核心参数（导航频率、规划器） -->
+        <rosparam file="$(find gazebo_nav)/launch/config/move_base/move_base_params.yaml" command="load"/>
+        <!-- 加载代价地图通用参数（激光、机器人尺寸） -->
+        <rosparam file="$(find gazebo_nav)/launch/config/move_base/costmap_params.yaml" command="load" ns="global_costmap"/>
+        <rosparam file="$(find gazebo_nav)/launch/config/move_base/costmap_params.yaml" command="load" ns="local_costmap"/>
+
+        <!-- 全局代价地图专属配置（静态地图、不滚动） -->
+        <param name="global_costmap/global_frame" value="map"/>
+        <param name="global_costmap/robot_base_frame" value="base_link"/>
+        <param name="global_costmap/update_frequency" value="1.0"/>
+        <param name="global_costmap/publish_frequency" value="0.5"/>
+        <param name="global_costmap/static_map" value="true"/>
+        <param name="global_costmap/rolling_window" value="false"/>
+        <param name="global_costmap/resolution" value="0.05"/>
+
+        <!-- 局部代价地图专属配置（滚动窗口、高更新频率） -->
+        <param name="local_costmap/global_frame" value="odom"/>
+        <param name="local_costmap/robot_base_frame" value="base_link"/>
+        <param name="local_costmap/update_frequency" value="5.0"/>
+        <param name="local_costmap/publish_frequency" value="2.0"/>
+        <param name="local_costmap/static_map" value="false"/>
+        <param name="local_costmap/rolling_window" value="true"/>
+        <param name="local_costmap/width" value="4.0"/>
+        <param name="local_costmap/height" value="4.0"/>
+        <param name="local_costmap/resolution" value="0.05"/>
+        <param name="local_costmap/origin_x" value="-2.0"/>
+        <param name="local_costmap/origin_y" value="-2.0"/>
+    </node>
+
+    <!-- 4. 启动 RViz（加载 launch/config/rviz/ 下的配置文件） -->
+    <!-- 正确写法：args 是 <node> 标签的属性，直接放在 node 标签内 -->
+    <node pkg="rviz" type="rviz" name="rviz" required="true" output="screen" args="-d $(find gazebo_nav)/launch/config/rviz/nav_rviz.rviz"/>
+
+</launch>
