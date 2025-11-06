@@ -1,18 +1,42 @@
 # move_base导航核心参数
 move_base:
-  # 全局规划器（默认用Navfn，适合巡检场景）
+  # 全局规划器（默认用Navfn，适合巡检场景，稳定可靠）
   base_global_planner: "navfn/NavfnROS"
-  # 局部规划器（默认用轨迹规划器，避障灵敏）
+  # 局部规划器（默认轨迹规划器，避障灵敏，适配低速巡检）
   base_local_planner: "base_local_planner/TrajectoryPlannerROS"
 
-  # 导航频率配置（适配Gazebo仿真速度）
-  controller_frequency: 10.0     # 控制指令发布频率（10Hz）
-  planner_frequency: 1.0         # 全局路径规划频率（1Hz，不浪费资源）
+  global_costmap/robot_radius: 0.1
+  local_costmap/robot_radius: 0.1
 
-  # 局部规划器速度限制（适配巡检机器人，避免过快）
+  # 导航频率配置（适配Gazebo仿真，避免频率不匹配导致抖动）
+  controller_frequency: 10.0     # 控制指令发布频率（10Hz，与局部规划器匹配）
+  planner_frequency: 1.0         # 全局路径规划频率（1Hz，无需高频规划，节省资源）
+  planner_patience: 5.0          # 规划超时时间（5秒，超时后重新规划）
+  controller_patience: 10.0      # 控制超时时间（10秒，适配低速移动）
+
+  # 局部规划器速度限制（修复原配置问题，适配低速巡检）
   TrajectoryPlannerROS:
-    max_vel_x: 0.01               # 最大线速度（0.3m/s）
-    min_vel_x: 0.01              # 最小线速度（0.05m/s，避免停滞）
-    max_rotational_vel: 0.5      # 最大角速度（0.5rad/s，转向平稳）
-    min_in_place_rotational_vel: 0.2  # 原地转向最小速度
-    escape_vel: -0.1             # 后退逃逸速度（遇到障碍时后退）
+    max_vel_x: 0.05               # 最大线速度（从0.01改为0.05m/s，避免过慢导致超时）
+    min_vel_x: 0.02               # 最小线速度（从0.01改为0.02m/s，防止机器人停滞）
+    max_rotational_vel: 0.3       # 最大角速度（从0.5改为0.3rad/s，转向更平稳，适合巡检）
+    min_in_place_rotational_vel: 0.1  # 原地转向最小速度（降低到0.1rad/s，避免转向过猛）
+    escape_vel: -0.05             # 后退逃逸速度（从-0.1改为-0.05m/s，后退更平缓）
+
+    # 速度公差（适配低速场景，避免因微小偏差判定失败）
+    yaw_goal_tolerance: 0.1       # 朝向公差（0.1rad≈5.7°，允许微小朝向偏差）
+    xy_goal_tolerance: 0.1        # 位置公差（0.1m，到达目标点的允许偏差）
+    latch_xy_goal_tolerance: true # 到达位置公差后，锁定位置（无需完全对准朝向）
+
+    # 加速/减速参数（适配低速，避免急加减速）
+    acc_lim_x: 0.03               # 线加速度限制（0.03m/s²，缓慢加速）
+    acc_lim_theta: 0.05           # 角加速度限制（0.05rad/s²，缓慢转向）
+    decel_lim_x: -0.03            # 线减速度限制（与加速度对称，平稳减速）
+
+  # 禁用恢复行为（解决之前的旋转恢复碰撞报错）
+  recovery_behavior_enabled: false
+  clearing_rotation_allowed: false
+
+  # 全局规划器参数（优化路径平滑度）
+  NavfnROS:
+    allow_unknown: true           # 允许规划到未知区域（适配部分未探索地图）
+    default_tolerance: 0.2        # 全局路径公差（0.2m，提升规划成功率）

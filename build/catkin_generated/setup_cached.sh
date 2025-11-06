@@ -7,7 +7,4 @@
 # new environment variables
 
 # modified environment variables
-export CMAKE_PREFIX_PATH="/home/xuncheng/Gazebo-Inspection/devel:$CMAKE_PREFIX_PATH"
 export PWD='/home/xuncheng/Gazebo-Inspection/build'
-export ROSLISP_PACKAGE_DIRECTORIES='/home/xuncheng/Gazebo-Inspection/devel/share/common-lisp'
-export ROS_PACKAGE_PATH="/home/xuncheng/Gazebo-Inspection/src:$ROS_PACKAGE_PATH"

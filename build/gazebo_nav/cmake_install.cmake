@@ -52,3 +52,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/gazebo_nav" TYPE FILE FILES "/home/xuncheng/Gazebo-Inspection/src/gazebo_nav/package.xml")
 endif()
 
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/gazebo_nav" TYPE PROGRAM FILES "/home/xuncheng/Gazebo-Inspection/build/gazebo_nav/catkin_generated/installspace/auto_inspection.py")
+endif()
+
