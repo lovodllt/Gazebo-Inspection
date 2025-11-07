@@ -1,42 +1,40 @@
-# move_base导航核心参数
 move_base:
-  # 全局规划器（默认用Navfn，适合巡检场景，稳定可靠）
-  base_global_planner: "navfn/NavfnROS"
-  # 局部规划器（默认轨迹规划器，避障灵敏，适配低速巡检）
-  base_local_planner: "base_local_planner/TrajectoryPlannerROS"
+  base_local_planner: "dwa_local_planner/DWAPlannerROS"
+  global_frame: map
+  robot_base_frame: base_footprint
+  odom_frame: odom
+  transform_tolerance: 0.2
 
-  global_costmap/robot_radius: 0.1
-  local_costmap/robot_radius: 0.1
+  # DWA 提速核心参数（线速度从 0.05→0.1m/s，角速度同步提升）
+  DWAPlannerROS:
+    # 1. 速度限制（核心提速，保持平稳性）
+    max_vel_x: 0.10               # 最大线速度：0.1m/s（比原来快1倍，适合巡检）
+    min_vel_x: 0.03               # 最小线速度：0.03m/s（避免低速停滞）
+    max_vel_y: 0.0                # 无 Y 向移动，保持 0
+    min_vel_y: 0.0
+    max_rotational_vel: 0.4       # 最大角速度：0.4rad/s≈23°/s（比原来快1倍，转向匹配速度）
+    min_rotational_vel: 0.1       # 原地转向最小速度：0.1rad/s
+    escape_vel: -0.08             # 后退逃逸速度：-0.08m/s（匹配线速度）
 
-  # 导航频率配置（适配Gazebo仿真，避免频率不匹配导致抖动）
-  controller_frequency: 10.0     # 控制指令发布频率（10Hz，与局部规划器匹配）
-  planner_frequency: 1.0         # 全局路径规划频率（1Hz，无需高频规划，节省资源）
-  planner_patience: 5.0          # 规划超时时间（5秒，超时后重新规划）
-  controller_patience: 10.0      # 控制超时时间（10秒，适配低速移动）
+    # 2. 动态窗口参数（适配提速，保证轨迹规划精度）
+    sim_time: 2.5                 # 仿真时间延长到 2.5s（速度快了，需要更长的预测轨迹）
+    sim_granularity: 0.03         # 采样粒度：0.03m（平衡精度和计算量）
+    vx_samples: 3                 # X 向速度采样数：3个（覆盖 min→mid→max，更多轨迹选择）
+    vy_samples: 1
+    vtheta_samples: 5             # 角速度采样数：5个（转向速度提升，增加采样密度）
 
-  # 局部规划器速度限制（修复原配置问题，适配低速巡检）
-  TrajectoryPlannerROS:
-    max_vel_x: 0.05               # 最大线速度（从0.01改为0.05m/s，避免过慢导致超时）
-    min_vel_x: 0.02               # 最小线速度（从0.01改为0.02m/s，防止机器人停滞）
-    max_rotational_vel: 0.3       # 最大角速度（从0.5改为0.3rad/s，转向更平稳，适合巡检）
-    min_in_place_rotational_vel: 0.1  # 原地转向最小速度（降低到0.1rad/s，避免转向过猛）
-    escape_vel: -0.05             # 后退逃逸速度（从-0.1改为-0.05m/s，后退更平缓）
+    # 3. 代价函数权重（提速后，平衡路径、目标、避障）
+    path_distance_bias: 25.0      # 路径跟踪权重：25（比原来高，避免偏离路线）
+    goal_distance_bias: 35.0      # 目标点权重：35（优先向目标移动，不拖沓）
+    occdist_scale: 0.01           # 障碍物距离权重：0.01（比原来略高，提速后增加避障敏感度）
+    forward_point_distance: 0.3   # 前向预测点距离：0.3m（与提速后的速度匹配）
 
-    # 速度公差（适配低速场景，避免因微小偏差判定失败）
-    yaw_goal_tolerance: 0.1       # 朝向公差（0.1rad≈5.7°，允许微小朝向偏差）
-    xy_goal_tolerance: 0.1        # 位置公差（0.1m，到达目标点的允许偏差）
-    latch_xy_goal_tolerance: true # 到达位置公差后，锁定位置（无需完全对准朝向）
+    # 4. 公差调整（适配提速，避免过度调整）
+    xy_goal_tolerance: 0.15       # 位置公差：0.15m（保持不变，确保到达精度）
+    yaw_goal_tolerance: 0.2       # 朝向公差：0.2rad（保持不变）
+    latch_xy_goal_tolerance: true
 
-    # 加速/减速参数（适配低速，避免急加减速）
-    acc_lim_x: 0.03               # 线加速度限制（0.03m/s²，缓慢加速）
-    acc_lim_theta: 0.05           # 角加速度限制（0.05rad/s²，缓慢转向）
-    decel_lim_x: -0.03            # 线减速度限制（与加速度对称，平稳减速）
-
-  # 禁用恢复行为（解决之前的旋转恢复碰撞报错）
-  recovery_behavior_enabled: false
-  clearing_rotation_allowed: false
-
-  # 全局规划器参数（优化路径平滑度）
-  NavfnROS:
-    allow_unknown: true           # 允许规划到未知区域（适配部分未探索地图）
-    default_tolerance: 0.2        # 全局路径公差（0.2m，提升规划成功率）
+    # 5. 加减速限制（适配提速，避免急加减速导致抖动/碰撞）
+    acc_lim_x: 0.05               # 线加速度：0.05m/s²（比原来高，快速达到目标速度）
+    acc_lim_y: 0.0
+    acc_lim_theta: 0.08           # 角加速度：0.08rad/s²（比原来高，转向更顺畅）

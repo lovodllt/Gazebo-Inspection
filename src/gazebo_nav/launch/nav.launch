@@ -30,7 +30,7 @@
         <param name="global_costmap/resolution" value="0.05"/>
 
         <!-- 局部代价地图专属配置（滚动窗口、高更新频率） -->
-        <param name="local_costmap/global_frame" value="odom"/>
+        <param name="local_costmap/global_frame" value="map"/>
         <param name="local_costmap/robot_base_frame" value="base_link"/>
         <param name="local_costmap/update_frequency" value="5.0"/>
         <param name="local_costmap/publish_frequency" value="2.0"/>
