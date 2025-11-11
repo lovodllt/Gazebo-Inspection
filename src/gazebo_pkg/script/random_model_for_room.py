@@ -40,11 +40,11 @@ if __name__ == "__main__":
     dessert_board_folders = ["dessert1_board", "dessert2_board", "dessert3_board"]
     # 模型名称和路径配置
     home_dir = os.path.expanduser("~")
-    # 直接指定 xuncheng 用户的模型路径（无需自动解析）
+
     model_configs = [
-    {"name_prefix": "fruit_board_", "path": f"/home/xuncheng/.gazebo/models/{random.choice(fruit_board_folders)}/model.sdf"},
-    {"name_prefix": "vage_board_", "path": f"/home/xuncheng/.gazebo/models/{random.choice(vege_board_folders)}/model.sdf"},
-    {"name_prefix": "dessert_board_", "path": f"/home/xuncheng/.gazebo/models/{random.choice(dessert_board_folders)}/model.sdf"}
+    {"name_prefix": "fruit_board_", "path": f"/home/lovod/.gazebo/models/{random.choice(fruit_board_folders)}/model.sdf"},
+    {"name_prefix": "vage_board_", "path": f"/home/lovod/.gazebo/models/{random.choice(vege_board_folders)}/model.sdf"},
+    {"name_prefix": "dessert_board_", "path": f"/home/lovod/.gazebo/models/{random.choice(dessert_board_folders)}/model.sdf"}
 ]
 
 

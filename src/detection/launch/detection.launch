@@ -1,0 +1,8 @@
+<launch>
+    <node name="yolov8_detector" pkg="detection" type="detection_node.py" output="screen">
+    
+        <param name="model_path" value="$(find detection)/models/v8.pt" />
+        
+        <param name="confidence_threshold" value="0.6" />
+    </node>
+</launch>
