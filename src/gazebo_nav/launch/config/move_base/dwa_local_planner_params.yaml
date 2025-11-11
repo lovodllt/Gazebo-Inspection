@@ -1,0 +1,36 @@
+DWAPlannerROS:
+  # 1. 速度限制（适配巡检提速需求）
+  max_vel_x: 0.05               # 最大线速度：0.1m/s
+  min_vel_x: 0.02               # 最小线速度：0.03m/s（避免停滞）
+  max_vel_y: 0.0                # 非全向轮，Y向速度设0
+  min_vel_y: 0.0
+  max_rotational_vel: 0.5       # 最大角速度：0.4rad/s（≈23°/s）
+  min_rotational_vel: 0.1       # 最小角速度：0.1rad/s（原地转向不卡顿）
+  escape_vel: -0.08             # 后退逃逸速度：-0.08m/s
+
+  # 2. 动态窗口参数（平衡规划精度与计算量）
+  sim_time: 2.5                 # 仿真时间：2.5s（提速后需更长预测轨迹）
+  sim_granularity: 0.03         # 采样粒度：0.03m
+  angular_sim_granularity: 0.03 # 角度采样粒度：0.03rad
+  vx_samples: 3                 # X向速度采样数：3个（覆盖全速度范围）
+  vy_samples: 1                 # Y向采样数：1个（非全向轮）
+  vtheta_samples: 10             # 角速度采样数：5个（增加转向轨迹选择）
+
+  # 3. 代价函数权重（平衡路径、目标、避障）
+  path_distance_bias: 25.0      # 路径跟踪权重：25（优先沿全局路径移动）
+  goal_distance_bias: 35.0      # 目标点权重：35（优先靠近目标）
+  occdist_scale: 0.01           # 障碍物权重：0.01（提速后增强避障敏感度）
+  forward_point_distance: 0.3   # 前向预测点距离：0.3m（与速度匹配）
+  stop_time_buffer: 0.2         # 停止缓冲时间：0.2s（避免急停）
+  scaling_speed: 0.08           # 速度缩放阈值：0.08m/s（低于此速度时缩放权重）
+  max_scaling_factor: 0.2       # 最大缩放系数：0.2
+
+  # 4. 加减速限制（避免抖动与碰撞）
+  acc_lim_x: 0.05               # 线加速度：0.05m/s²（平稳提速）
+  acc_lim_y: 0.0                # Y向加速度设0
+  acc_lim_theta: 0.1           # 角加速度：0.08rad/s²（转向顺畅）
+
+  # 5. 避障与振荡恢复
+  min_obstacle_dist: 0.08        # 与障碍物最小安全距离：0.2m（匹配机器人尺寸）
+  oscillation_reset_dist: 0.05  # 振荡恢复距离：0.05m（检测原地抖动）
+  oscillation_reset_theta: 0.1  # 振荡恢复角度：0.1rad（检测原地旋转）

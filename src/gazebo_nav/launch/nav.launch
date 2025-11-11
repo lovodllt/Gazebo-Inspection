@@ -12,11 +12,13 @@
         <!-- <rosparam file="/home/xuncheng/Gazebo-Inspection/src/gazebo_nav/launch/config/amcl/amcl_params.yaml" command="load"/> -->
     </node>
 
-    <!-- 3. 启动 move_base 导航核心（加载 launch/config/move_base/ 下的配置） -->
+    <!-- 3. 启动 move_base 导航核心（加载所有配置，启用 DWA） -->
     <node pkg="move_base" type="move_base" name="move_base" output="screen" clear_params="true">
-        <!-- 加载 move_base 核心参数（导航频率、规划器） -->
+        <!-- 加载 move_base 核心参数（坐标系、恢复行为等） -->
         <rosparam file="$(find gazebo_nav)/launch/config/move_base/move_base_params.yaml" command="load"/>
-        <!-- 加载代价地图通用参数（激光、机器人尺寸） -->
+        <!-- 加载 DWA 局部规划器专属参数 -->
+        <rosparam file="$(find gazebo_nav)/launch/config/move_base/dwa_local_planner_params.yaml" command="load"/>
+        <!-- 加载代价地图通用参数（全局+局部共用） -->
         <rosparam file="$(find gazebo_nav)/launch/config/move_base/costmap_params.yaml" command="load" ns="global_costmap"/>
         <rosparam file="$(find gazebo_nav)/launch/config/move_base/costmap_params.yaml" command="load" ns="local_costmap"/>
 
@@ -28,12 +30,13 @@
         <param name="global_costmap/static_map" value="true"/>
         <param name="global_costmap/rolling_window" value="false"/>
         <param name="global_costmap/resolution" value="0.05"/>
+        <param name="global_costmap/transform_tolerance" value="0.5"/>
 
         <!-- 局部代价地图专属配置（滚动窗口、高更新频率） -->
         <param name="local_costmap/global_frame" value="map"/>
         <param name="local_costmap/robot_base_frame" value="base_link"/>
-        <param name="local_costmap/update_frequency" value="5.0"/>
-        <param name="local_costmap/publish_frequency" value="2.0"/>
+        <param name="local_costmap/update_frequency" value="15.0"/>
+        <param name="local_costmap/publish_frequency" value="10.0"/>
         <param name="local_costmap/static_map" value="false"/>
         <param name="local_costmap/rolling_window" value="true"/>
         <param name="local_costmap/width" value="4.0"/>
@@ -41,10 +44,10 @@
         <param name="local_costmap/resolution" value="0.05"/>
         <param name="local_costmap/origin_x" value="-2.0"/>
         <param name="local_costmap/origin_y" value="-2.0"/>
+        <param name="local_costmap/transform_tolerance" value="0.5"/>
     </node>
 
-    <!-- 4. 启动 RViz（加载 launch/config/rviz/ 下的配置文件） -->
-    <!-- 正确写法：args 是 <node> 标签的属性，直接放在 node 标签内 -->
+    <!-- 4. 启动 RViz（加载可视化配置） -->
     <node pkg="rviz" type="rviz" name="rviz" required="true" output="screen" args="-d $(find gazebo_nav)/launch/config/rviz/nav_rviz.rviz"/>
 
 </launch>

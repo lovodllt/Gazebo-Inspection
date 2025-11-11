@@ -39,13 +39,16 @@ if __name__ == "__main__":
     vege_board_folders = ["vage1_board", "vage2_board", "vage3_board"]
     dessert_board_folders = ["dessert1_board", "dessert2_board", "dessert3_board"]
     # 模型名称和路径配置
+    home_dir = os.path.expanduser("~")
+    # 直接指定 xuncheng 用户的模型路径（无需自动解析）
     model_configs = [
-        {"name_prefix": "fruit_board_", "path": f"/home/a/.gazebo/models/{random.choice(fruit_board_folders)}/model.sdf"},
-        {"name_prefix": "vage_board_", "path": f"/home/a/.gazebo/models/{random.choice(vege_board_folders)}/model.sdf"},
-        {"name_prefix": "dessert_board_", "path": f"/home/a/.gazebo/models/{random.choice(dessert_board_folders)}/model.sdf"}
-    ]
+    {"name_prefix": "fruit_board_", "path": f"/home/xuncheng/.gazebo/models/{random.choice(fruit_board_folders)}/model.sdf"},
+    {"name_prefix": "vage_board_", "path": f"/home/xuncheng/.gazebo/models/{random.choice(vege_board_folders)}/model.sdf"},
+    {"name_prefix": "dessert_board_", "path": f"/home/xuncheng/.gazebo/models/{random.choice(dessert_board_folders)}/model.sdf"}
+]
 
-    # 加载所有模型
+
+# 加载所有模型
     models = [
         {"name_prefix": config["name_prefix"], "model_xml": load_model(config["path"])}
         for config in model_configs

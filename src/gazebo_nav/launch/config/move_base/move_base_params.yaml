@@ -1,40 +1,34 @@
 move_base:
-  base_local_planner: "dwa_local_planner/DWAPlannerROS"
+  # 坐标系与变换配置
+  base_local_planner: "dwa_local_planner/DWAPlannerROS"  # 明确指定 DWA 为局部规划器
   global_frame: map
-  robot_base_frame: base_footprint
+  robot_base_frame: base_link
   odom_frame: odom
   transform_tolerance: 0.2
 
-  # DWA 提速核心参数（线速度从 0.05→0.1m/s，角速度同步提升）
-  DWAPlannerROS:
-    # 1. 速度限制（核心提速，保持平稳性）
-    max_vel_x: 0.10               # 最大线速度：0.1m/s（比原来快1倍，适合巡检）
-    min_vel_x: 0.03               # 最小线速度：0.03m/s（避免低速停滞）
-    max_vel_y: 0.0                # 无 Y 向移动，保持 0
-    min_vel_y: 0.0
-    max_rotational_vel: 0.4       # 最大角速度：0.4rad/s≈23°/s（比原来快1倍，转向匹配速度）
-    min_rotational_vel: 0.1       # 原地转向最小速度：0.1rad/s
-    escape_vel: -0.08             # 后退逃逸速度：-0.08m/s（匹配线速度）
+  # 导航频率配置
+  controller_frequency: 10.0  # 控制频率（与 DWA 采样频率匹配）
+  planner_frequency: 1.0      # 全局规划频率（静态地图无需高频）
+  planner_patience: 5.0       # 规划超时时间（5秒）
+  controller_patience: 10.0    # 控制超时时间（10秒）
 
-    # 2. 动态窗口参数（适配提速，保证轨迹规划精度）
-    sim_time: 2.5                 # 仿真时间延长到 2.5s（速度快了，需要更长的预测轨迹）
-    sim_granularity: 0.03         # 采样粒度：0.03m（平衡精度和计算量）
-    vx_samples: 3                 # X 向速度采样数：3个（覆盖 min→mid→max，更多轨迹选择）
-    vy_samples: 1
-    vtheta_samples: 5             # 角速度采样数：5个（转向速度提升，增加采样密度）
+  # 恢复行为配置（解决卡住问题）
+  recovery_behavior_enabled: true
+  clearing_rotation_allowed: true
+  recovery_behaviors:
+    - name: "conservative_reset"
+      type: "clear_costmap_recovery/ClearCostmapRecovery"
+    - name: "rotate_recovery"
+      type: "rotate_recovery/RotateRecovery"
+    - name: "aggressive_reset"
+      type: "clear_costmap_recovery/ClearCostmapRecovery"
+  conservative_reset:
+    reset_distance: 3.0  # 清除机器人周围3m内局部地图
+  aggressive_reset:
+    reset_distance: 5.0
+    layer_names: ["obstacle_layer"]
 
-    # 3. 代价函数权重（提速后，平衡路径、目标、避障）
-    path_distance_bias: 25.0      # 路径跟踪权重：25（比原来高，避免偏离路线）
-    goal_distance_bias: 35.0      # 目标点权重：35（优先向目标移动，不拖沓）
-    occdist_scale: 0.01           # 障碍物距离权重：0.01（比原来略高，提速后增加避障敏感度）
-    forward_point_distance: 0.3   # 前向预测点距离：0.3m（与提速后的速度匹配）
-
-    # 4. 公差调整（适配提速，避免过度调整）
-    xy_goal_tolerance: 0.15       # 位置公差：0.15m（保持不变，确保到达精度）
-    yaw_goal_tolerance: 0.2       # 朝向公差：0.2rad（保持不变）
-    latch_xy_goal_tolerance: true
-
-    # 5. 加减速限制（适配提速，避免急加减速导致抖动/碰撞）
-    acc_lim_x: 0.05               # 线加速度：0.05m/s²（比原来高，快速达到目标速度）
-    acc_lim_y: 0.0
-    acc_lim_theta: 0.08           # 角加速度：0.08rad/s²（比原来高，转向更顺畅）
+  # 目标公差（全局配置，无需在 DWA 中重复）
+  xy_goal_tolerance: 0.15
+  yaw_goal_tolerance: 0.2
+  latch_xy_goal_tolerance: true

@@ -23,8 +23,8 @@ scan:
   max_obstacle_height: 0.3           # 障碍物最大高度（覆盖机器人高度0.1m + 激光高度0.225m）
 
 # 碰撞判定辅助参数（适配长方体机器人）
-inflation_radius: 0.08# 膨胀半径（0.15m，避免机器人侧面碰撞，与 Y 向尺寸匹配）
-cost_scaling_factot: 2.0
+inflation_radius: 0.07 # 膨胀半径（0.15m，避免机器人侧面碰撞，与 Y 向尺寸匹配）
+cost_scaling_factot: 1.5
 lethal_cost_threshold: 100           # 致命碰撞阈值（默认，无需修改）
 inscribed_radius: 0.1                # 机器人内切圆半径（X 向半长0.1m，取较小值确保完全包含）
 circumscribed_radius: 0.18           # 机器人外接圆半径（对角线半长≈0.18m，覆盖最大外接范围）
